@@ -1,20 +1,20 @@
 /****************************************************************************************************
-*                                                                                                  *
-*                                     Koivisto UCI Chess engine                                    *
-*                                   by. Kim Kahre and Finn Eggers                                  *
-*                                                                                                  *
-*                 Koivisto is free software: you can redistribute it and/or modify                 *
-*               it under the terms of the GNU General Public License as published by               *
-*                 the Free Software Foundation, either version 3 of the License, or                *
-*                                (at your option) any later version.                               *
-*                    Koivisto is distributed in the hope that it will be useful,                   *
-*                  but WITHOUT ANY WARRANTY; without even the implied warranty of                  *
-*                   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                  *
-*                           GNU General Public License for more details.                           *
-*                 You should have received a copy of the GNU General Public License                *
-*                 along with Koivisto.  If not, see <http://www.gnu.org/licenses/>.                *
-*                                                                                                  *
-****************************************************************************************************/
+ *                                                                                                  *
+ *                                     Koivisto UCI Chess engine                                    *
+ *                                   by. Kim Kahre and Finn Eggers                                  *
+ *                                                                                                  *
+ *                 Koivisto is free software: you can redistribute it and/or modify                 *
+ *               it under the terms of the GNU General Public License as published by               *
+ *                 the Free Software Foundation, either version 3 of the License, or                *
+ *                                (at your option) any later version.                               *
+ *                    Koivisto is distributed in the hope that it will be useful,                   *
+ *                  but WITHOUT ANY WARRANTY; without even the implied warranty of                  *
+ *                   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                  *
+ *                           GNU General Public License for more details.                           *
+ *                 You should have received a copy of the GNU General Public License                *
+ *                 along with Koivisto.  If not, see <http://www.gnu.org/licenses/>.                *
+ *                                                                                                  *
+ ****************************************************************************************************/
 
 #ifndef KOIVISTO_DEFS_H
 #define KOIVISTO_DEFS_H
@@ -97,8 +97,8 @@ using avx_register_type_32 = int32x4_t;
 #define avx_add_epi16 vaddq_s16
 #define avx_sub_epi16 vsubq_s16
 #define avx_max_epi16 vmaxq_s16
-#define avx_load_reg  vldrq_p128
-#define avx_store_reg exit(-1)
+#define avx_load_reg(ptr)       vld1q_s16(reinterpret_cast<const int16_t*>(ptr))
+#define avx_store_reg(ptr, val) vst1q_s16(reinterpret_cast<int16_t*>(ptr), (val))
 #endif
 
 class Board;
