@@ -1,0 +1,46 @@
+name: Koivisto Android Build
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Allows you to run this manually from the Actions tab
+
+jobs:
+  build:
+    name: Build for Android (ARM64)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive # Crucial: pulls in the neural network submodule
+
+    - name: Set up Android NDK
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r26b # You can adjust the NDK version if needed
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        # We pass the Android toolchain file provided by the NDK to cross-compile
+        cmake .. \
+          -DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake \
+          -DANDROID_ABI=arm64-v8a \
+          -DANDROID_PLATFORM=android-29 \
+          -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build Koivisto
+      run: cmake --build build --config Release -j $(nproc)
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Koivisto-Android-arm64
+        path: build/Koivisto
+        retention-days: 7
