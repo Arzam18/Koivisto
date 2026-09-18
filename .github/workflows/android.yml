@@ -1,10 +1,6 @@
 name: Koivisto Android Build
 
 on:
-  push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
@@ -28,14 +24,36 @@ jobs:
       run: |
         mkdir build
         cd build
+
         cmake .. \
           -DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake \
           -DANDROID_ABI=arm64-v8a \
           -DANDROID_PLATFORM=android-29 \
-          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_ANDROID_STL_TYPE=c++_static
 
     - name: Build Koivisto
-      run: cmake --build build --config Release -j $(nproc)
+      run: |
+        cmake --build build --config Release -j $(nproc)
+
+    - name: Verify Binary
+      run: |
+        ls -lh build/Koivisto
+        file build/Koivisto
+
+    - name: Check for libc++ dependency
+      run: |
+        echo "Checking dynamic dependencies..."
+        readelf -d build/Koivisto || true
+
+        echo
+        echo "Checking for libc++_shared.so:"
+        if readelf -d build/Koivisto 2>/dev/null | grep -q "libc++_shared.so"; then
+          echo "ERROR: Koivisto still depends on libc++_shared.so"
+          exit 1
+        else
+          echo "OK: No libc++_shared.so dependency found."
+        fi
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
